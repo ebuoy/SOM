@@ -3,9 +3,12 @@ import numpy as np
 def distquad(x,y):
     n=np.shape(x)[0]
     dist=0
-    for i in range n:
+    for i in range (n):
         dist+=(x-y)**2
     return np.squrt(dist)/n
+
+def gauss(d,sig):
+    return (np.exp(-(d/sig)**2)/sig)
 
 class Neurone:
     def __init__(self, i, j, n,data):
@@ -20,9 +23,10 @@ class SOM:
     def __init__(self,row,column,data):
         
         #Définition des paramètres nécessaires à l'entraînement
-        self._eps0=0,01
-        self._espmax=0,1
-        self._sig0=
+        self._eps0=0.01
+        self._espmax=0.1
+        self._sig0=0.01
+        self._sigmax=0.1
         
         self._row=row #nombre de neurones choisis pour mod�liser les données
         self._column=column
@@ -30,8 +34,8 @@ class SOM:
         
         #Initialisation de la grille
         self._nodes=np.zeros(row,column) 
-        for i in range row:
-            for j in range column:
+        for i in range (row):
+            for j in range (column):
                 self._node[i,j]=Neurone(i,j,row*column,data)
                 #La grille est initialisée de manière aléatoire
         
@@ -41,8 +45,8 @@ class SOM:
         column=self._column
         dist=np.zeros(row,column)
         
-        for i in range row:
-            for j in range column:
+        for i in range (row):
+            for j in range (column):
                 dist[i,j]=distance(self._nodes[i,j]._weight,vector)
         min=np.argmin(dist)
         iwin=0
@@ -54,13 +58,19 @@ class SOM:
         jwin+=column
         return(iwin+column,jwin+1)
     
-    def train(distance=distquad):
-        t=0
-        #Début de l'apprentissage, le premier vecteur stimulus est choisi au hasard
-        vector_init=self._data(np.rint(np.shape(self._data)[0]*np.random.rand()),np.rint(np.shape(self._data)[1]*np.random.rand()))
+    def train(i,nbiter,f=gauss,distance=distquad):
+        #Pour l'apprentissage, le vecteur est choisi au hasard
+        eps=self._eps0+(self._epsmax-self.eps0)*(nbiter - i)/nbiter
+        sig=self._sig0+(self._sigmax-self.sig0)*(nbiter - i)/nbiter
         
-        iwin,jwin=self.winner(vector_init)
-        
-        self._nodes[iwin,jwin]+=mu*np.exp(-distance(self._nodes[iwin,jwin],vector_init)**2/(2*sigma**2))*(sel.nodes[iwin,jwin]-vector_init)
-        
-        
+        vector=self._data(np.rint(np.shape(self._data)[0]*np.random.rand()),np.rint(np.shape(self._data)[1]*np.random.rand()))
+        iwin,jwin=self.winner(vector)
+        self._nodes[iwin,jwin]+=eps*np.gauss(distance(self._nodes[iwin,jwin],vector))*(self.nodes[iwin,jwin]-vector)
+            
+
+    
+    # ---------------------
+    # Exemple 1 test dans [0,1]
+    
+    data = np.random.rand(10,10)
+    
