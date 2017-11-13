@@ -1,0 +1,5 @@
+n=196 (nombre d'exemples)
+sig0=10^-1
+sigmax=10^-1/2
+Evolution de sig et eps : sig exponentiel eps linéaire
+nbiter = 60000
