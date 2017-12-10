@@ -1,6 +1,0 @@
-n=196 (nombre d'exemples)
-sig0=10^-2
-sigmax=10^-1
-gauss = exp((-d/sig)^2/2)/sqrt(2*pi)
-Evolution de sig et eps : linéaire
-nbiter = 60000

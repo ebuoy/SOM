@@ -1,6 +1,0 @@
-n=196 (nombre d'exemples) : disposé en une grille pour une equirépartition des poids
-sig0=10^-1
-sigmax=10^-1/2
-gauss = exp((-d/sig)^2/2)/sqrt(2*pi)
-Evolution de sig et eps : linéaire
-nbiter = 60000
