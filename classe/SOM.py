@@ -20,10 +20,17 @@ class Neurone:
         self._x=i/row
         self._y=j/col
         self._n=row*col
-        self._weight=np.max(data)*np.random.random(np.shape(data)[1])
+        if len(data.shape)==2:
+            self._weight=np.max(data)*np.random.random(data.shape[1])
+        else:
+            self._weight=[[] for i in range (data.shape[0])]
+            for i in range(data.shape[0]):
+                for j in range(data.shape[1]):
+                    self._weight[i].append(np.max(data)*np.random.random(data.shape[2]))
+            self._weight=np.array(self._weight)
         
 class SOM:
-    def __init__(self,*args):
+    def __init__(self,row,column,data):
         
         #Définition des paramètres nécessaires à l'entraînement
         self._eps0=0.01
@@ -32,9 +39,9 @@ class SOM:
         self._sig0=1/4*10**(-1)
         self._sigmax=np.sqrt(10**(-1))
         
-        self._row=int(args[0])#nombre de neurones choisis pour mod�liser les données
-        self._column=int(args[1])
-        self._data=np.array(args[2])
+        self._row=int(row)#nombre de neurones choisis pour mod�liser les données
+        self._column=int(column)
+        self._data=np.array(data)
         
         #Initialisation de la grille
         self._nodes=[[] for i in range(self._row)]
@@ -44,16 +51,19 @@ class SOM:
         self._nodes=np.array(self._nodes)
                 #La grille est initialisée de manière aléatoire
         
-        
     def winner(self,vector,distance=distquad):#Par défaut, la distance utilisée est la distance quadratique
         row=self._row
         column=self._column
-        dist=np.zeros((row,column))
-
+        dist=[[]for i in range (row)]
+        """dist=np.zeros((row,column))
         
         for i in range (row):
             for j in range (column):
-                dist[i,j]=distance(self._nodes[i,j]._weight,vector)
+                dist[i,j]=distance(self._nodes[i,j]._weight,vector)"""
+        for i in range(row):
+            for j in range(column):
+                dist[i].append(distance(self._nodes[i,j]._weight,vector))
+        dist=np.array(dist)
         min=np.argmin(dist)
         iwin=0
         jwin=min
@@ -73,10 +83,10 @@ class SOM:
         #sig=self._sig0*(self._sigmax/self._sig0)**((nbiter-k)/nbiter)
         
         #Pour l'apprentissage, le vecteur est choisi au hasard
-        vector=self._data[np.random.randint(np.shape(self._data)[0])]
+        coordvect=np.random.randint(np.shape(self._data)[0])
+        vector=self._data[coordvect]
         iwin,jwin=self.winner(vector)
         self._nodes[iwin,jwin]._weight+=eps*gauss(distance(self._nodes[iwin,jwin]._weight,vector),sig)*(vector-self._nodes[iwin,jwin]._weight)
-        #self._nodes[iwin,jwin]._weight+=eps*(vector-self._nodes[iwin,jwin]._weight)
 
         #Les voisins du gagnant subissent aussi les effets du changement
         
@@ -86,3 +96,13 @@ class SOM:
                     coeff_dist_win_ij=gauss(distance(np.array([self._nodes[iwin,jwin]._x,self._nodes[iwin,jwin]._y]),np.array([self._nodes[i,j]._x,self._nodes[i,j]._y])),sig)
                     #Coefficient permettant de déterminer le taux d'apprentissage de tous les voisins
                     self._nodes[i,j]._weight+=coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
+        return coordvect,(iwin,jwin)
+    
+    def getmap(self):
+        
+        map=[[] for i in range(self._row)]
+        for i in range(self._row):
+            for j in range(self._column):
+                map[i].append(self._nodes[i,j]._weight)
+        
+        return np.array(map)
