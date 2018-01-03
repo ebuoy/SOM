@@ -35,39 +35,30 @@ for k in range (nh):
 datamat=np.array(datamat)
 #data est la liste des imagettes de tailles h*l
 datacomp=[0 for i in range(nh*nl)] #datacomp est la liste du numéro du neurone vainqueur pour l'imagette correspondante
-n=5 #Nombre de neurone du réseau
+n=5 #Il y a 25 neurones dans le réseau
 
 carte=SOM(n,n,datamat)
 
 nbiter=60000
 
 for i in range(nbiter):
-    vect,winner=carte.train(i,nbiter)
-    datacomp[vect]=winner
-datacomp=np.array(datacomp)
-datacomp=datacomp.astype(bytes)
+    vect,iwin,jwin=carte.train(i,nbiter)
+    datacomp[vect]=iwin*n+jwin
+map2=[]
 
-map=np.round(carte.getmap())
+map=np.round(carte.getmaplist())
 map=np.round(map)
-map=map.astype(str)
-map=map.tolist()
-completesize=[H,L]
-imagettesize=[h,l]
-#completesize=np.array((H,L))
-#imagettesize=np.array((h,l))
-map=np.array(map)
-map=map.astype(bytes)
-#completesize=np.array((H,L)).astype(str)
-#imagettesize=np.array((h,l)).astype(str)
-#completesize=np.array((H,L))
-#imagettesize=np.array((h,l))
+map=map.astype(int)
+
+for i in range(len(map)):
+    for j in range(len(map[0])):
+        map2.append(map[i,j])
+
 ### Compression
 pathdest=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\imageC"
 
 Comp=open(pathdest+fileC,'wb')
 
-Comp.write(bytes(map))
-Comp.write('\n'.encode())
 Comp.write(str(H).encode())
 Comp.write('\n'.encode())
 Comp.write(str(L).encode())
@@ -76,5 +67,7 @@ Comp.write(str(h).encode())
 Comp.write('\n'.encode())
 Comp.write(str(l).encode())
 Comp.write('\n'.encode())
-Comp.write(datacomp)
+Comp.write(bytes(map2))
+Comp.write('\n'.encode())
+Comp.write(bytes(datacomp))
 Comp.close()

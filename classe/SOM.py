@@ -96,7 +96,7 @@ class SOM:
                     coeff_dist_win_ij=gauss(distance(np.array([self._nodes[iwin,jwin]._x,self._nodes[iwin,jwin]._y]),np.array([self._nodes[i,j]._x,self._nodes[i,j]._y])),sig)
                     #Coefficient permettant de déterminer le taux d'apprentissage de tous les voisins
                     self._nodes[i,j]._weight+=coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
-        return coordvect,(iwin,jwin)
+        return coordvect,iwin,jwin
     
     def getmap(self):
         
@@ -104,5 +104,13 @@ class SOM:
         for i in range(self._row):
             for j in range(self._column):
                 map[i].append(self._nodes[i,j]._weight)
+        
+        return np.array(map)
+    
+    def getmaplist(self):
+        map=[]
+        for i in range(self._row):
+            for j in range(self._column):
+                map.append(self._nodes[i,j]._weight)
         
         return np.array(map)
