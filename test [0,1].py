@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import os
 os.chdir('Test 2D-3D')
-nbtest= "\Test test"
+nbtest= "\Test cercles reliés 3"
 path=os.getcwd()+nbtest
 
 #------ Données random dans [0,1]
@@ -55,7 +55,7 @@ data1=[]
 data2=[]
 data3=[]
 
-for i in range(500):
+"""for i in range(n):
     p=np.random.random()
     if p>0.5:
         a1=o1[0]+r*np.random.random()
@@ -83,14 +83,24 @@ for i in range(500):
         b3=o1[1]-(r/2)*np.random.random()
     data1.append([a1,b1])
     data2.append([a2,b2])
-    data3.append([a3,b3])
-    
+    data3.append([a3,b3])"""
 data=np.array(data1+data2+data3)
+
+#--- Données en cercle
+data=[]
+for i in range(n):
+    p=np.random.random()
+    if p>0.5:
+        a1=o1[0]+r*np.random.random()
+        a2=o2[0]+r*np.random.random()
+    data.append([a1,a2])
+
+data=np.array(data)
+
 winners=[]
 carte = SOM(7,7,data)
-nbiter=1
+nbiter=10000
 
-carte.train(1,nbiter)
 def figure(k,carte,data):
 
     # Dessin de la carte
