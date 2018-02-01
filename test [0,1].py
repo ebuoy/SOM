@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import os
 os.chdir('Test 2D-3D')
-nbtest= "\Test cercles reliés 3"
+nbtest= "\Test cercles reliés lin 30000"
 path=os.getcwd()+nbtest
 
 #------ Données random dans [0,1]
@@ -55,7 +55,7 @@ data1=[]
 data2=[]
 data3=[]
 
-"""for i in range(n):
+for i in range(n):
     p=np.random.random()
     if p>0.5:
         a1=o1[0]+r*np.random.random()
@@ -83,47 +83,54 @@ data3=[]
         b3=o1[1]-(r/2)*np.random.random()
     data1.append([a1,b1])
     data2.append([a2,b2])
-    data3.append([a3,b3])"""
+    data3.append([a3,b3])
 data=np.array(data1+data2+data3)
 
 #--- Données en cercle
-data=[]
+"""data=[]
 for i in range(n):
     p=np.random.random()
     if p>0.5:
         a1=o1[0]+r*np.random.random()
-        a2=o2[0]+r*np.random.random()
-    data.append([a1,a2])
+    elif p<0.5:
+        a1=o1[0]-r*np.random.random()
+    pprime=np.random.random()
+    if pprime>0.5:
+        b1=o1[1]+np.sqrt(r**2-(a1-o1[0])**2)*np.random.random()
+    elif pprime<0.5:
+        b1=o1[1]-np.sqrt(r**2-(a1-o1[0])**2)*np.random.random()
 
-data=np.array(data)
+    data.append([a1,b1])
+
+data=np.array(data)"""
 
 winners=[]
 carte = SOM(7,7,data)
-nbiter=10000
+nbiter=30000
 
 def figure(k,carte,data):
 
     # Dessin de la carte
-
+    map=carte.getmap()
     x=[data[i][0] for i in range(data.shape[0])]
     y=[data[i][1] for i in range(data.shape[0])]
     xc=[]
     yc=[]
     for i in range(carte._row):
         for j in range(carte._column):
-                xc.append(carte._nodes[i][j]._weight[0])
-                yc.append(carte._nodes[i][j]._weight[1])
+                xc.append(map[i][j][0])
+                yc.append(map[i][j][1])
     
     lines=[]
     
     for i in range(carte._row-1):
         for j in range(carte._column-1):
-            lines.append([carte._nodes[i,j]._weight,carte._nodes[i+1,j]._weight])
-            lines.append([carte._nodes[i,j]._weight,carte._nodes[i,j+1]._weight])
+            lines.append([map[i][j],map[i+1][j]])
+            lines.append([map[i][j],map[i][j+1]])
     
     for i in range(1,carte._row):
-        lines.append([carte._nodes[carte._row-1,i]._weight,carte._nodes[carte._row-1,i-1]._weight])
-        lines.append([carte._nodes[i,carte._column-1]._weight,carte._nodes[i-1,carte._column-1]._weight])
+        lines.append([map[carte._row-1][i],map[carte._row-1][i-1]])
+        lines.append([map[i][carte._column-1],map[i-1][carte._column-1]])
         
     plt.clf()    
     fig=plt.axes()

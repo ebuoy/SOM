@@ -3,8 +3,8 @@ import scipy.misc as msc
 from PIL import Image
 import numpy as np
 
-file="\\test.jpg"
-fileC="\\testC"
+file="\\BW.jpg"
+fileC="\\BWC"
 path=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\image"
 
 pathorigin=path+file
@@ -25,7 +25,7 @@ for i in range(H):
 
 ### Apprentissage
 
-h,l=20,20 #largeur et hauteur des imagettes
+h,l=2,2 #largeur et hauteur des imagettes
 nl,nh=L//l,H//h #nombre d'imagette par ligne et par colonne
 
 if nl!= L/l:
@@ -54,7 +54,7 @@ n=5 #Il y a 25 neurones dans le réseau
 
 carte=SOM(n,n,datamat)
 
-nbiter=1000
+nbiter=nh*nl*100
 
 for i in range(nbiter):
     vect,iwin,jwin=carte.train(i,nbiter)

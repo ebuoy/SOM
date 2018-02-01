@@ -20,13 +20,14 @@ class Neurone:
         self._x=i/row
         self._y=j/col
         self._n=row*col
+        self._maxdata=np.max(data)
         if len(data.shape)==2:
             self._weight=np.max(data)*np.random.random(data.shape[1])
         else:
             self._weight=[[] for i in range (data.shape[0])]
             for i in range(data.shape[0]):
                 for j in range(data.shape[1]):
-                    self._weight[i].append(np.max(data)*np.random.random(data.shape[2]))
+                    self._weight[i].append(np.random.random(data.shape[2]))
             self._weight=np.array(self._weight)
         
 class SOM:
@@ -41,8 +42,9 @@ class SOM:
         
         self._row=int(row)#nombre de neurones choisis pour mod�liser les données
         self._column=int(column)
-        self._data=np.array(data)
-        
+        self._maxdata=np.max(data)
+        self._data=np.array(data)/self._maxdata
+
         #Initialisation de la grille
         self._nodes=[[] for i in range(self._row)]
         for i in range (self._row):
@@ -78,7 +80,6 @@ class SOM:
         
         eps=self._eps0+(self._epsmax-self._eps0)*(nbiter - k)/nbiter
         sig=self._sig0+(self._sigmax-self._sig0)*(nbiter - k)/nbiter
-        
         #eps=self._eps0*(self._epsmax/self._eps0)**((nbiter-k)/nbiter)
         #sig=self._sig0*(self._sigmax/self._sig0)**((nbiter-k)/nbiter)
         
@@ -105,7 +106,7 @@ class SOM:
             for j in range(self._column):
                 map[i].append(self._nodes[i,j]._weight)
         
-        return np.array(map)
+        return np.array(map)*self._maxdata
     
     def getmaplist(self):
         map=[]
@@ -113,4 +114,4 @@ class SOM:
             for j in range(self._column):
                 map.append(self._nodes[i,j]._weight)
         
-        return np.array(map)
+        return np.array(map)*self._maxdata
