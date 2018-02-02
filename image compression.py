@@ -3,8 +3,8 @@ import scipy.misc as msc
 from PIL import Image
 import numpy as np
 
-file="\\BW.jpg"
-fileC="\\BWC"
+file="\\Audrey.jpg"
+fileC="\\AudreyC"
 path=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\image"
 
 pathorigin=path+file
@@ -21,11 +21,15 @@ pxmatrix=[[] for i in range(H)]
 
 for i in range(H):
     for j in range(L):
-        pxmatrix[i].append(pxarray[i*L+j][0])
+        if type(pxarray[0])==type(pxarray):
+            pxmatrix[i].append(pxarray[i*L+j][0])
+        elif type(pxarray[0])==int:
+            pxmatrix[i].append(pxarray[i*L+j])
+        
 
 ### Apprentissage
 
-h,l=2,2 #largeur et hauteur des imagettes
+h,l=4,4 #largeur et hauteur des imagettes
 nl,nh=L//l,H//h #nombre d'imagette par ligne et par colonne
 
 if nl!= L/l:

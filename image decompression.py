@@ -8,10 +8,10 @@ from classe.SOM import *
 ## Décompression
 
 path=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\imageC"
-fileC="\\BWC"
+fileC="\\AudreyC"
 
 pathdest=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\imageD"
-fileD="\\BWD.bmp"
+fileD="\\AudreyD.bmp"
 
 pathC=path+fileC
 imageC=open(pathC,'rb')
@@ -42,10 +42,10 @@ NH = (h-1)*nh
 NL = (l-1)*nl
 im=[]
 
-for m in range(0,len(data),nh):
-    for i in range(0,len(data[0]),l):
-        for j in range(nh):
-            for k in range(l):
+for m in range(0,len(data),nl):
+    for i in range(0,len(data[0]),h):
+        for j in range(nl):
+            for k in range(h):
                 im.append(int(data[j+m][k+i]))
   
             
@@ -57,7 +57,7 @@ px1=np.array(px)
 file=Image.fromarray(px1) #régler le problème d'affichage du fichier
 file.show()
 pxb=bytes(im)
-file2=Image.frombytes(mode='L',size=(H,L),data=pxb)
+file2=Image.frombytes(mode='L',size=(L,H),data=pxb)
 file2.save(pathdest+fileD)
 
 
