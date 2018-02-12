@@ -5,7 +5,7 @@ import numpy as np
 
 file="\\Audrey.jpg"
 fileC="\\AudreyC"
-path=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\image"
+path=r".\Compression\image"
 
 pathorigin=path+file
 
@@ -29,7 +29,7 @@ for i in range(H):
 
 ### Apprentissage
 
-h,l=4,4 #largeur et hauteur des imagettes
+h,l=10,10 #largeur et hauteur des imagettes
 nl,nh=L//l,H//h #nombre d'imagette par ligne et par colonne
 
 if nl!= L/l:
@@ -54,11 +54,11 @@ datamat=np.array(datamat)
 
 #datamat est la liste des imagettes de tailles h*l
 datacomp=[0 for i in range(nh*nl)] #datacomp est la liste du numéro du neurone vainqueur pour l'imagette correspondante
-n=5 #Il y a 25 neurones dans le réseau
+n=10 #Il y a 100 neurones dans le réseau
 
 carte=SOM(n,n,datamat)
 
-nbiter=nh*nl*100
+nbiter=nh*nl*10000
 
 for i in range(nbiter):
     vect,iwin,jwin=carte.train(i,nbiter)

@@ -7,10 +7,10 @@ from classe.SOM import *
 
 ## Décompression
 
-path=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\imageC"
+path=r".\Compression\imageC"
 fileC="\\AudreyC"
 
-pathdest=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\imageD"
+pathdest=r".\Compression\imageD"
 fileD="\\AudreyD.bmp"
 
 pathC=path+fileC
