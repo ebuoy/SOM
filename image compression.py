@@ -74,7 +74,7 @@ for i in range(len(map)):
         map2.append(map[i,j])
 
 ### Compression
-pathdest=r"C:\Users\Emeline\Documents\Cours\ENSMN\2A\Parcours Recherche\Carte de Kohonen\Compression\imageC"
+pathdest=r"C:.\Compression\image"
 
 Comp=open(pathdest+fileC,'wb')
 
