@@ -3,8 +3,8 @@ import scipy.misc as msc
 from PIL import Image
 import numpy as np
 
-file="\\Audrey.jpg"
-fileC="\\AudreyC"
+file="\\Audrey.png"
+fileC="\\AudreypC"
 path=r".\Compression\image"
 
 pathorigin=path+file
@@ -74,7 +74,7 @@ for i in range(len(map)):
         map2.append(map[i,j])
 
 ### Compression
-pathdest=r"C:.\Compression\image"
+pathdest=r"C:.\Compression\imageC"
 
 Comp=open(pathdest+fileC,'wb')
 
