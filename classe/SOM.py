@@ -4,6 +4,7 @@ import os
 from matplotlib.collections import LineCollection
 
 def distquad(x,y):
+    return ((x[0]-y[0])**2 + (x[1]-y[1])**2)**.5
     n=np.shape(x)[0]
     dist=0
     for i in range (n):
@@ -64,7 +65,7 @@ class SOM:
                 dist[i,j]=distance(self._nodes[i,j]._weight,vector)"""
         for i in range(row):
             for j in range(column):
-                dist[i].append(distance(self._nodes[i,j]._weight,vector))
+                dist[i].append(distance(self._nodes[i,j]. _weight, vector))
         dist=np.array(dist)
         min=np.argmin(dist)
         iwin=0
@@ -94,9 +95,10 @@ class SOM:
         for i in range(self._row):
             for j in range(self._column):
                 if i!=iwin or j!=jwin:
-                    coeff_dist_win_ij=gauss(distance(np.array([self._nodes[iwin,jwin]._x,self._nodes[iwin,jwin]._y]),np.array([self._nodes[i,j]._x,self._nodes[i,j]._y])),sig)
+                    dist = distance([self._nodes[iwin,jwin]._x, self._nodes[iwin,jwin]._y], [self._nodes[i,j]._x, self._nodes[i,j]._y])
+                    coeff_dist_win_ij = gauss(dist, sig)
                     #Coefficient permettant de déterminer le taux d'apprentissage de tous les voisins
-                    self._nodes[i,j]._weight+=coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
+                    self._nodes[i,j]._weight += coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
         return coordvect,iwin,jwin
     
     def getmap(self):
