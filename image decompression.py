@@ -8,10 +8,10 @@ from classe.SOM import *
 ## Décompression
 
 path=r".\Compression\imageC"
-fileC="\\AudreyC"
+fileC="\\AudreypC"
 
 pathdest=r".\Compression\imageD"
-fileD="\\AudreyD.bmp"
+fileD="\\AudreypD.bmp"
 
 pathC=path+fileC
 imageC=open(pathC,'rb')
