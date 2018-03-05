@@ -3,13 +3,16 @@ import matplotlib.pyplot as plt
 import os
 from matplotlib.collections import LineCollection
 
-def distquad(x,y):
-    return ((x[0]-y[0])**2 + (x[1]-y[1])**2)**.5
+"""def distquad(x,y):
+    #return ((x[0]-y[0])**2 + (x[1]-y[1])**2)**.5
     n=np.shape(x)[0]
     dist=0
     for i in range (n):
         dist+=(x[i]-y[i])**2
-    return np.sqrt(dist)
+    return np.sqrt(dist)"""
+    
+def distquad(x,y):
+    return np.sum((x-y)**2)
 
 def gauss(d,sig):
     return (np.exp(-((d/sig)**2)/2))/(sig)
@@ -54,6 +57,14 @@ class SOM:
         self._nodes=np.array(self._nodes)
                 #La grille est initialisée de manière aléatoire
         
+        #On enregistre la matrice des distances
+        self._MDist=[[] for j in range(self._row)]
+        
+        for i in range(self._row):
+            for j in range(self._column):
+                self._MDist[i].append(distance([self._nodes[iwin,jwin]._x, self._nodes[iwin,jwin]._y], [self._nodes[i,j]._x, self._nodes[i,j]._y]))
+        self._MDist=np.array(self._MDist)
+                
     def winner(self,vector,distance=distquad):#Par défaut, la distance utilisée est la distance quadratique
         row=self._row
         column=self._column
@@ -76,7 +87,16 @@ class SOM:
         iwin-=1
         jwin+=column
         return(iwin,jwin)
+
+    def coeff_dist(dist,sig):
+        return gauss(dist,sig)
+        
+    def change_weight(A,B,eps,sig):
+        A+=eps*gauss(distance(A,B),sig)*(B-A)
     
+    def coordrandvect():
+        return np.random.randint(np.shape(self._data)[0])
+        
     def train(self,k,nbiter,f=gauss,distance=distquad):
         
         eps=self._eps0+(self._epsmax-self._eps0)*(nbiter - k)/nbiter
@@ -85,20 +105,26 @@ class SOM:
         #sig=self._sig0*(self._sigmax/self._sig0)**((nbiter-k)/nbiter)
         
         #Pour l'apprentissage, le vecteur est choisi au hasard
-        coordvect=np.random.randint(np.shape(self._data)[0])
+        coordvect= self.coordrandvect()
         vector=self._data[coordvect]
+        
         iwin,jwin=self.winner(vector)
-        self._nodes[iwin,jwin]._weight+=eps*gauss(distance(self._nodes[iwin,jwin]._weight,vector),sig)*(vector-self._nodes[iwin,jwin]._weight)
+        
+        self.change_weight(self._nodes[iwin,jwin]._weight,vector,eps,sig)
+        
+        #self._nodes[iwin,jwin]._weight+=eps*gauss(distance(self._nodes[iwin,jwin]._weight,vector),sig)*(vector-self._nodes[iwin,jwin]._weight)
 
         #Les voisins du gagnant subissent aussi les effets du changement
         
         for i in range(self._row):
             for j in range(self._column):
                 if i!=iwin or j!=jwin:
-                    dist = distance([self._nodes[iwin,jwin]._x, self._nodes[iwin,jwin]._y], [self._nodes[i,j]._x, self._nodes[i,j]._y])
-                    coeff_dist_win_ij = gauss(dist, sig)
+                    dist = self._MDist[i,j] #garder en mémoire la distance (on la calcule une seule fois) et on stocke la gaussienne appliquée aux distances
+                    coeff_dist_win_ij = self.coeff_dist(dist, sig)
                     #Coefficient permettant de déterminer le taux d'apprentissage de tous les voisins
-                    self._nodes[i,j]._weight += coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
+                    #self._nodes[i,j]._weight += coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
+                    self.change_weight(self._nodes[i,j]._weight,self._nodes[iwin,jwin]._weight,eps,sig)
+                    
         return coordvect,iwin,jwin
     
     def getmap(self):
