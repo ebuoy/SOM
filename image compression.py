@@ -3,9 +3,9 @@ import scipy.misc as msc
 from PIL import Image
 import numpy as np
 
-file="\\Audrey.png"
-fileC="\\AudreypC"
-path=r".\Compression\image"
+file="Audrey.png"
+fileC="AudreypC"
+path=r"./Compression/image/"
 
 pathorigin=path+file
 
@@ -56,13 +56,16 @@ datamat=np.array(datamat)
 datacomp=[0 for i in range(nh*nl)] #datacomp est la liste du numéro du neurone vainqueur pour l'imagette correspondante
 n=10 #Il y a 100 neurones dans le réseau
 
-carte=SOM(n,n,datamat)
+nbiter=nh*nl*1000
 
-nbiter=nh*nl*10000
+carte=SOM(n,n,datamat, nbiter)
+
 
 for i in range(nbiter):
-    vect,iwin,jwin=carte.train(i,nbiter)
-    datacomp[vect]=iwin*n+jwin
+    vect, iwin, jwin = carte.train()
+    datacomp[vect] = iwin*n+jwin
+    if i%1000 == 0:
+        print("Iteration : ", i, "/", nbiter)
 map2=[]
 
 map=np.round(carte.getmaplist())

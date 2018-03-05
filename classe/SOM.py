@@ -1,145 +1,116 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import os
-from matplotlib.collections import LineCollection
 
-"""def distquad(x,y):
-    #return ((x[0]-y[0])**2 + (x[1]-y[1])**2)**.5
-    n=np.shape(x)[0]
-    dist=0
-    for i in range (n):
-        dist+=(x[i]-y[i])**2
-    return np.sqrt(dist)"""
-    
-def distquad(x,y):
-    return np.sum((x-y)**2)
 
-def gauss(d,sig):
-    return (np.exp(-((d/sig)**2)/2))/(sig)
+def dist_quad(x, y):
+    return np.sum((x - y) ** 2)
+
+
+def gauss(d, sig):
+    return np.exp(-((d / sig) ** 2) / 2) / sig
+
 
 class Neurone:
-    def __init__(self, i, j, row,col,data):
-        self._i=i
-        self._j=j
-        self._x=i/row
-        self._y=j/col
-        self._n=row*col
-        self._maxdata=np.max(data)
-        if len(data.shape)==2:
-            self._weight=np.max(data)*np.random.random(data.shape[1])
+    def __init__(self, i, j, row, col, data):
+        self.i = i
+        self.j = j
+        self.x = i / row
+        self.y = j / col
+        self.n = row * col
+        self.maxData = np.max(data)
+
+        # initializing weights randomly
+        if len(data.shape) == 2:
+            self.weight = np.max(data) * np.random.random(data.shape[1])
         else:
-            self._weight=[[] for i in range (data.shape[0])]
+            self.weight = [[] for i in range(data.shape[0])]
             for i in range(data.shape[0]):
                 for j in range(data.shape[1]):
-                    self._weight[i].append(np.random.random(data.shape[2]))
-            self._weight=np.array(self._weight)
-        
+                    self.weight[i].append(np.random.random(data.shape[2]))
+            self.weight = np.array(self.weight)
+
+    def update_weights(self, new):
+        self.weight += new
+
+
 class SOM:
-    def __init__(self,row,column,data):
-        
-        #Définition des paramètres nécessaires à l'entraînement
-        self._eps0=0.01
-        self._epsmax=0.1
-        
-        self._sig0=1/4*10**(-1)
-        self._sigmax=np.sqrt(10**(-1))
-        
-        self._row=int(row)#nombre de neurones choisis pour mod�liser les données
-        self._column=int(column)
-        self._maxdata=np.max(data)
-        self._data=np.array(data)/self._maxdata
+    def __init__(self, row, column, data, nbiter, distance=dist_quad):
 
-        #Initialisation de la grille
-        self._nodes=[[] for i in range(self._row)]
-        for i in range (self._row):
-            for j in range (self._column):
-                self._nodes[i].append(Neurone(i,j,self._row,self._column,self._data))
-        self._nodes=np.array(self._nodes)
-                #La grille est initialisée de manière aléatoire
-        
-        #On enregistre la matrice des distances
-        self._MDist=[[] for j in range(self._row)]
-        
-        for i in range(self._row):
-            for j in range(self._column):
-                self._MDist[i].append(distance([self._nodes[iwin,jwin]._x, self._nodes[iwin,jwin]._y], [self._nodes[i,j]._x, self._nodes[i,j]._y]))
-        self._MDist=np.array(self._MDist)
-                
-    def winner(self,vector,distance=distquad):#Par défaut, la distance utilisée est la distance quadratique
-        row=self._row
-        column=self._column
-        dist=[[]for i in range (row)]
-        """dist=np.zeros((row,column))
-        
-        for i in range (row):
-            for j in range (column):
-                dist[i,j]=distance(self._nodes[i,j]._weight,vector)"""
-        for i in range(row):
-            for j in range(column):
-                dist[i].append(distance(self._nodes[i,j]. _weight, vector))
-        dist=np.array(dist)
-        min=np.argmin(dist)
-        iwin=0
-        jwin=min
-        while jwin>=0:
-            jwin-=column
-            iwin+=1
-        iwin-=1
-        jwin+=column
-        return(iwin,jwin)
+        # Définition des paramètres nécessaires à l'entraînement
+        self.eps0 = 0.01
+        self.epsmax = 0.1
+        self.epsilon = self.eps0
+        self.epsilon_stepping = (self.epsmax - self.eps0) / nbiter
 
-    def coeff_dist(dist,sig):
-        return gauss(dist,sig)
-        
-    def change_weight(A,B,eps,sig):
-        A+=eps*gauss(distance(A,B),sig)*(B-A)
-    
-    def coordrandvect():
-        return np.random.randint(np.shape(self._data)[0])
-        
-    def train(self,k,nbiter,f=gauss,distance=distquad):
-        
-        eps=self._eps0+(self._epsmax-self._eps0)*(nbiter - k)/nbiter
-        sig=self._sig0+(self._sigmax-self._sig0)*(nbiter - k)/nbiter
-        #eps=self._eps0*(self._epsmax/self._eps0)**((nbiter-k)/nbiter)
-        #sig=self._sig0*(self._sigmax/self._sig0)**((nbiter-k)/nbiter)
-        
-        #Pour l'apprentissage, le vecteur est choisi au hasard
-        coordvect= self.coordrandvect()
-        vector=self._data[coordvect]
-        
-        iwin,jwin=self.winner(vector)
-        
-        self.change_weight(self._nodes[iwin,jwin]._weight,vector,eps,sig)
-        
-        #self._nodes[iwin,jwin]._weight+=eps*gauss(distance(self._nodes[iwin,jwin]._weight,vector),sig)*(vector-self._nodes[iwin,jwin]._weight)
+        self.sig0 = 1 / 4 * 10 ** (-1)
+        self.sigmax = np.sqrt(10 ** (-1))
+        self.sigma = self.sig0
+        self.sigma_stepping = (self.sigmax - self.sig0) / nbiter
 
-        #Les voisins du gagnant subissent aussi les effets du changement
-        
-        for i in range(self._row):
-            for j in range(self._column):
-                if i!=iwin or j!=jwin:
-                    dist = self._MDist[i,j] #garder en mémoire la distance (on la calcule une seule fois) et on stocke la gaussienne appliquée aux distances
-                    coeff_dist_win_ij = self.coeff_dist(dist, sig)
-                    #Coefficient permettant de déterminer le taux d'apprentissage de tous les voisins
-                    #self._nodes[i,j]._weight += coeff_dist_win_ij*eps*(vector-self._nodes[i,j]._weight)
-                    self.change_weight(self._nodes[i,j]._weight,self._nodes[iwin,jwin]._weight,eps,sig)
-                    
-        return coordvect,iwin,jwin
-    
+        self.row = int(row)  # nombre de neurones choisis pour modéliser les données
+        self.column = int(column)
+        self.maxdata = np.max(data)
+        self.data = np.array(data) / self.maxdata
+
+        # Initialisation de la grille
+        self.nodes = [[] for i in range(self.row)]
+        for i in range(self.row):
+            for j in range(self.column):
+                self.nodes[i].append(Neurone(i, j, self.row, self.column, self.data))
+        self.nodes = np.array(self.nodes)
+
+        # La grille est initialisée de manière aléatoire
+
+        # We store here the distances between nodes
+        # TODO : make it work with a non-square arrays and multiple dimensions
+        self.MDist = np.empty_like(self.nodes)
+        for i in range(self.row):
+            for j in range(self.column):
+                self.MDist[i][j] = (self.nodes[i][0].x - self.nodes[j][0].x) ** 2
+
+    def winner(self, vector, distance=dist_quad):
+        dist = np.empty_like(self.nodes)
+        for i in range(self.row):  # Computes the distances between the tested vector and all nodes
+            for j in range(self.column):
+                dist[i][j] = distance(self.nodes[i, j].weight, vector)
+        return np.unravel_index(np.argmin(dist, axis=None), dist.shape)  # Returning the Best Matching Unit's index.
+
+    def train(self, f=gauss, distance=dist_quad):
+        self.epsilon += self.epsilon_stepping
+        self.sigma += self.sigma_stepping
+
+        # The training vector is chosen randomly
+        vector_coordinates = self.random_vector_coordinates()
+        vector = self.data[self.random_vector_coordinates()]
+
+        # Getting the Best matching unit
+        bmu = self.winner(vector, distance)
+
+        self.updating_weights(bmu, vector, f)
+
+        return vector_coordinates, bmu[0], bmu[1]
+
+    def updating_weights(self, bmu, vector, f=gauss):
+        # Updating weights of all nodes
+        for i in range(self.row):
+            for j in range(self.column):
+                dist = np.sqrt(self.MDist[i][bmu[0]] + self.MDist[j][bmu[1]])
+                self.nodes[i, j].weight += f(dist, self.sigma)*self.epsilon*(vector-self.nodes[i, j].weight)
+
+    def random_vector_coordinates(self):
+        return np.random.randint(np.shape(self.data)[0])
+
     def getmap(self):
-        
-        map=[[] for i in range(self._row)]
-        for i in range(self._row):
-            for j in range(self._column):
-                map[i].append(self._nodes[i,j]._weight)
-        
-        return np.array(map)*self._maxdata
-    
+        map = [[] for i in range(self.row)]
+        for i in range(self.row):
+            for j in range(self.column):
+                map[i].append(self.nodes[i, j].weight)
+
+        return np.array(map) * self.maxdata
+
     def getmaplist(self):
-        map=[]
-        for i in range(self._row):
-            for j in range(self._column):
-                map.append(self._nodes[i,j]._weight)
-        
-        return np.array(map)*self._maxdata
+        map = []
+        for i in range(self.row):
+            for j in range(self.column):
+                map.append(self.nodes[i, j].weight)
+
+        return np.array(map) * self.maxdata
