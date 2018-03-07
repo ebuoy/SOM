@@ -2,6 +2,7 @@ from classe.SOM import *
 import scipy.misc as msc
 from PIL import Image
 import numpy as np
+np.set_printoptions(threshold=np.inf)  # used to display completely numpy arrays
 
 file="Audrey.png"
 fileC="AudreypC"
@@ -14,8 +15,8 @@ im=Image.open(pathorigin)
 L,H=im.size
 L,H=int(L),int(H)
 
-px=im.getdata() #Cette librairie permet de faire le travail sur une image en niveau de gris
-pxarray=np.array(px)
+px = im.getdata()  # Cette librairie permet de faire le travail sur une image en niveau de gris
+pxarray = np.array(px)
 
 pxmatrix=[[] for i in range(H)]
 
@@ -52,32 +53,60 @@ for m in range(0,H,h):
         
 datamat=np.array(datamat)
 
-#datamat est la liste des imagettes de tailles h*l
-datacomp=[0 for i in range(nh*nl)] #datacomp est la liste du numéro du neurone vainqueur pour l'imagette correspondante
-n=10 #Il y a 100 neurones dans le réseau
+# datamat est la liste des imagettes de tailles h*l
+datacomp = np.zeros(nh*nl, int)  # datacomp est la liste du numéro du neurone vainqueur pour l'imagette correspondante
+old = datacomp
 
-nbiter=nh*nl*1000
+n = 10  # Il y a 100 neurones dans le réseau
 
-carte=SOM(n,n,datamat, nbiter)
+nbEpoch = 100
+epochTime = nh*nl
+nbiter = epochTime*nbEpoch
+
+
+carte = SOM(n, n, datamat, nbEpoch)
+
+
+def display_som(som_list):
+    som_image = Image.fromarray(som_list.flatten().reshape(n*l,n*h))
+    som_image.show()
+    return som_image
+
+
+def compute_mean_error(datacomp, datamat, SOMList):
+    error = np.zeros(len(datacomp))
+    for i in range(len(datacomp)):
+        error[i] = np.mean(np.abs(datamat[i] - SOMList[datacomp[i]]))
+    return np.mean(error)
 
 
 for i in range(nbiter):
-    vect, iwin, jwin = carte.train()
+    vect, iwin, jwin = carte.train(i, epochTime)
     datacomp[vect] = iwin*n+jwin
-    if i%1000 == 0:
-        print("Iteration : ", i, "/", nbiter)
-map2=[]
+    if i%epochTime == 0:
+        print("Epoch : ", i//epochTime+1, "/", nbEpoch)
+        diff = np.count_nonzero(datacomp - old)
+        print("Changed values :", diff)
+        print("Mean error : ", compute_mean_error(datacomp, datamat, carte.getmaplist()))
+        old = np.array(datacomp)
 
-map=np.round(carte.getmaplist())
-map=np.round(map)
-map=map.astype(int)
+display_som(carte.getmap())
+# file.save("./Compression/SOM.bmp")
+
+datacomp = datacomp.tolist()
+map2 = []
+
+
+map = np.round(carte.getmaplist())
+map = np.round(map)
+map = map.astype(int)
 
 for i in range(len(map)):
     for j in range(len(map[0])):
         map2.append(map[i,j])
 
 ### Compression
-pathdest=r"C:.\Compression\imageC"
+pathdest=r"./Compression/"
 
 Comp=open(pathdest+fileC,'wb')
 
@@ -91,5 +120,5 @@ Comp.write(str(h).encode())
 Comp.write('\n'.encode())
 Comp.write(str(l).encode())
 Comp.write('\n'.encode())
-Comp.write(bytes(datacomp+map2))#len(datacomp)=1024
+Comp.write(bytes(datacomp+map2))  # len(datacomp) = 1024
 Comp.close()

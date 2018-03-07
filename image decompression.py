@@ -7,11 +7,11 @@ from classe.SOM import *
 
 ## Décompression
 
-path=r".\Compression\imageC"
-fileC="\\AudreypC"
+path=r"./Compression/"
+fileC="AudreypC"
 
-pathdest=r".\Compression\imageD"
-fileD="\\AudreypD.bmp"
+pathdest=r"./Compression/"
+fileD="AudreypD.bmp"
 
 pathC=path+fileC
 imageC=open(pathC,'rb')
@@ -40,7 +40,7 @@ for i in range(len(datacomp)):
 
 NH = (h-1)*nh
 NL = (l-1)*nl
-im=[]
+im = []
 
 for m in range(0,len(data),nl):
     for i in range(0,len(data[0]),h):
@@ -49,15 +49,15 @@ for m in range(0,len(data),nl):
                 im.append(int(data[j+m][k+i]))
   
             
-px=[]
+px = []
 for i in range(0,len(im),L):
     px.append(np.array(im[i:i+L]))
-    
-px1=np.array(px)
-file=Image.fromarray(px1) #régler le problème d'affichage du fichier
+
+px1 = np.array(px, 'uint8')
+file = Image.fromarray(px1) # régler le problème d'affichage du fichier
 file.show()
-pxb=bytes(im)
-file2=Image.frombytes(mode='L',size=(L,H),data=pxb)
+pxb = bytes(im)
+file2 = Image.frombytes(mode='L',size=(L,H),data=pxb)
 file2.save(pathdest+fileD)
 
 
