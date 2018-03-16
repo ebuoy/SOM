@@ -121,6 +121,6 @@ class SOM:
         map = []
         for i in range(self.row):
             for j in range(self.column):
-                map.append(self.nodes[i, j].weight)
+                map.append(np.array(self.nodes[i, j].weight)* self.maxdata)
 
-        return np.array(map) * self.maxdata
+        return map

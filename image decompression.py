@@ -22,11 +22,12 @@ values=dataC.split('\n'.encode(),5)
 len_datacomp=int(values[0])
 H,L=int(values[1]),int(values[2])
 h,l=int(values[3]),int(values[4])
-data=values[5]
+data = values[5].decode().replace('[',"").replace(']',"").split(',')
+for i in range(len(data)):
+    data[i] = int(data[i])
 datacomp=data[0:len_datacomp]
 map2=data[len_datacomp:]
 nl,nh=L//l,H//h #nombre d'imagette par ligne et colonne
-
 
 ## Reconstitution de l'image
 data=[] #On recréée les données avec les imagettes

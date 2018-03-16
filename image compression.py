@@ -1,8 +1,8 @@
 from classe.SOM import *
-import scipy.misc as msc
 from PIL import Image
+#from SOM import *  # Use this for the Cython speedboost
 import numpy as np
-np.set_printoptions(threshold=np.inf)  # used to display completely numpy arrays
+np.set_printoptions(threshold=np.inf)  # used to display numpy arrays in full
 
 file="Audrey.png"
 fileC="AudreypC"
@@ -59,7 +59,7 @@ old = datacomp
 
 n = 10  # Il y a 100 neurones dans le réseau
 
-nbEpoch = 100
+nbEpoch = 1000
 epochTime = nh*nl
 nbiter = epochTime*nbEpoch
 
@@ -68,7 +68,17 @@ carte = SOM(n, n, datamat, nbEpoch)
 
 
 def display_som(som_list):
-    som_image = Image.fromarray(som_list.flatten().reshape(n*l,n*h))
+    px2 = []
+    lst2 = ()
+    for i in range(n):
+        lst = ()
+        for j in range(n):
+            som_list[i * n + j] = som_list[i * n + j].reshape((h, l))
+            lst = lst + (som_list[i * n + j],)
+        px2.append(np.concatenate(lst, axis=1))
+        lst2 += (px2[i],)
+    px = np.concatenate(lst2, axis=0)
+    som_image = Image.fromarray(px)
     som_image.show()
     return som_image
 
@@ -90,7 +100,7 @@ for i in range(nbiter):
         print("Mean error : ", compute_mean_error(datacomp, datamat, carte.getmaplist()))
         old = np.array(datacomp)
 
-display_som(carte.getmap())
+display_som(carte.getmaplist())
 # file.save("./Compression/SOM.bmp")
 
 datacomp = datacomp.tolist()
@@ -120,5 +130,5 @@ Comp.write(str(h).encode())
 Comp.write('\n'.encode())
 Comp.write(str(l).encode())
 Comp.write('\n'.encode())
-Comp.write(bytes(datacomp+map2))  # len(datacomp) = 1024
+Comp.write(str(datacomp+map2).encode())  # len(datacomp) = 1024
 Comp.close()
