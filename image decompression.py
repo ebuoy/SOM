@@ -54,7 +54,7 @@ for i in range(0,len(im),L):
     px.append(np.array(im[i:i+L]))
 
 px1 = np.array(px, 'uint8')
-file = Image.fromarray(px1) # régler le problème d'affichage du fichier
+file = Image.fromarray(px1) 
 file.show()
 pxb = bytes(im)
 file2 = Image.frombytes(mode='L',size=(L,H),data=pxb)
