@@ -1,10 +1,10 @@
 Par ordre de priorité :
 
-• Calculer les distances comme étant la proximité entre neurones.
+• Calculer les distances comme étant la proximité entre neurones. --> OK
   - deux neurones reliés par un chemin sont à distance 1, si il y a un neurone
     entre eux la distance passe à deux.
 
-• Faire tourner le SOM avec les nouvelles distances
+• Faire tourner le SOM avec les nouvelles distances 
   - regarder si les résultats sont les mêmes qu'avec le SOM global
   - Essayer de trouver des règles pour ajouter/supprimer des liens entre neurones
 
