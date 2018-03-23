@@ -1,4 +1,5 @@
 from classe.SOM import *
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import os
@@ -11,6 +12,7 @@ def square(n):
     data = np.array([np.random.random(2) for i in range(n)])
     return data
 def eq_square(n):
+        n=int(np.sqrt(n))
         data=np.array([np.array([i,j]) for i in range (n) for j in range(n)])/n #test avec une equirépartition des stimuli
         return data
 
@@ -118,7 +120,7 @@ def circle(n):
 
 #nbiter=30000
 
-def figure(k,carte,data):
+def figure(k,carte,data,path):
 
     # Dessin de la carte
     map=carte.getmap()
@@ -170,11 +172,11 @@ def figure(k,carte,data):
         if i%100==0:
             figure(i,carte,data)"""
             
-def train(carte,data,nbEpoch):
+def train(carte,data,nbEpoch,path):
     for i in range (nbEpoch+1):
         carte.train(i,len(data))
         if i%100 == 0:
-            figure(i,carte,data)
+            figure(i,carte,data,path)
     
 #Programme principal
 
@@ -182,6 +184,9 @@ def train(carte,data,nbEpoch):
 def launch_SOM():
     
     global photo
+    
+    nbtest = "\%s"%(fic.get())
+    path = os.getcwd()+nbtest
     
     if n.get() == "":
         n_data = 400
@@ -215,7 +220,7 @@ def launch_SOM():
     os.makedirs(path)
     
     carte = SOM(nb_neur,nb_neur,data,nb_iter)
-    train(carte,data,nb_iter)
+    train(carte,data,nb_iter,path)
     
     fen1=Tk()
     can1 = Canvas(fen1, bg = 'dark grey', height=600, width=800)
@@ -237,6 +242,97 @@ def launch_SOM():
     item = can1.create_image(400, 300, image=photo)
     fen1.mainloop()
 
+
+def launch_SOM2():
+    
+    global photo,c,nb_iter,data, carte, path
+    nbtest = "\%s"%(fic.get())
+    path = os.getcwd()+nbtest
+    
+    if n.get() == "":
+        n_data = 400
+    else:
+        n_data = int(n.get())
+        
+    if var.get() == "Square":
+        data = square(n_data)
+    elif var.get() == "Equireparted square":
+        data = eq_square(n_data)
+    elif var.get() == "Two Seperated circles":
+        data = sep_circle(n_data)
+    elif var.get() == "Circle":
+        data = circle(n_data)
+    elif var.get() == "Kind of Weights":
+        data = weights(n_data)
+        
+    if neur.get() == "":
+        nb_neur = 5
+    else:
+        nb_neur = int(neur.get())
+    
+    if nbiter.get() == "":
+        nb_iter = 25*n_data
+        
+    else:
+        nb_iter = int(nbiter.get())
+        
+    fen.destroy()
+    os.makedirs(path)
+    
+    carte = SOM(nb_neur,nb_neur,data,nb_iter)
+    carte.train(0,len(data))
+    figure(0,carte,data,path)
+    fen1=Tk()
+    can1 = Canvas(fen1, bg = 'dark grey', height=600, width=800)
+    can1.grid(row=1,rowspan=7,column=2)
+    bou1 = Button(fen1, text='Quit', command=fen1.destroy)
+    
+    c=0
+    def refresh():
+        global c, carte, data, nb_iter,photo
+        if var1.get() == "end" :
+            for i in range(1,nb_iter-c+1):
+                carte.train(c+i, len(data))
+            figure(nb_iter,carte,data,path)
+            
+            nom1 = '%s\itération %s.png'%(path,nb_iter)
+        else :
+            N = int(var1.get())
+            i = 0
+            while i < N and c < nb_iter:
+
+                i += 1
+                c = c+1
+                carte.train(c,len(data))
+            figure(c,carte,data,path)
+            nom1 = '%s\itération %s.png'%(path,c)
+        photo = PhotoImage(file=nom1)
+        item = can1.create_image(400, 300, image=photo)
+                
+    txt = Label(fen1, text = "Number of iteration?")
+
+    var1 = StringVar()
+    RB1 = Radiobutton(fen1,text="+1",value="1",variable=var1)
+    RB2 = Radiobutton(fen1,text="+10",value="10",variable=var1)
+    RB3 = Radiobutton(fen1,text="+100",value="100",variable=var1)
+    RB4 = Radiobutton(fen1,text="+500",value="500",variable=var1)
+    RB5 = Radiobutton(fen1,text="To the end",value="end",variable=var1)
+    
+    bou2 = Button(fen1, text='Train', command=refresh)
+    
+    txt.grid(row=0)
+    RB1.grid(row=1)
+    RB2.grid(row=2)
+    RB3.grid(row=3)
+    RB4.grid(row=4)
+    RB5.grid(row=5)
+    bou2.grid(row=6)
+    bou1.grid(row=8)
+    
+    nom = '%s\itération %s.png'%(path,0)
+    photo = PhotoImage(file=nom)
+    item = can1.create_image(400, 300, image=photo)
+    fen1.mainloop()
     
 def launch():
     
@@ -250,7 +346,8 @@ def launch():
         data = circle(int(n.get()))
     elif var.get() == "Kind of Weights":
         data = weights(int(n.get()))"""
-        
+    
+    print(name.get())
     print(nbiter.get() == "")
     print(n.get() == "")
     print(neur.get() == "")
@@ -261,9 +358,7 @@ def launch():
     
 fen=Tk()
 txt0 = Label(fen, text = "Name")
-name = Entry(fen)
-nbtest = "\%s"%name.get()
-path = os.getcwd()+nbtest
+fic = Entry(fen)
 
 txt1 = Label(fen, text = "Number of iteration")
 nbiter = Entry(fen)
@@ -276,21 +371,21 @@ txt2 = Label(fen, text = "Number of data :")
 n = Entry(fen)
 txt3 = Label(fen, text = "Number of neurons :")
 neur = Entry(fen)
-bou = Button(fen, text="Launch the SOM", command=launch_SOM)
+bou = Button(fen, text="Launch the SOM", command=launch_SOM2)
 
 txt0.grid(row=0)
 txt1.grid(row=1)
 txt2.grid(row=2)
 txt3.grid(row=3)
 
-name.grid(row=0,column=1)
+fic.grid(row=0,column=1)
 nbiter.grid(row=1,column=1)
 n.grid(row=2,column=1)
 neur.grid(row=3,column=1)
 
 txt4 = Label(fen, text = "What kind of data?")
 txt4.grid(row =4)
-var=StringVar()
+var = StringVar()
 
 rb1 = Radiobutton(fen,text="Square",value="Square",variable=var)
 rb2 = Radiobutton(fen,text="Equireparted square",value="Equireparted square",variable=var)
